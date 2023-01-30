@@ -5,7 +5,7 @@ class BaseScaffold extends StatelessWidget {
   final Axis scrollDirection;
   final bool showAppBar;
 
-  const BaseScaffold({Key? key, required this.body, this.scrollDirection = Axis.horizontal, this.showAppBar = false}) : super(key: key);
+  const BaseScaffold({Key? key, required this.body, this.scrollDirection = Axis.vertical, this.showAppBar = false}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
