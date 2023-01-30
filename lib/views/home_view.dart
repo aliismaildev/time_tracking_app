@@ -2,14 +2,6 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 
-class Item {
-  final String? id;
-  String? listId;
-  final String? title;
-
-  Item({this.id, this.listId, this.title});
-}
-
 class HomeView extends StatefulWidget {
   final double tileHeight = 100;
   final double headerHeight = 80;
@@ -305,6 +297,14 @@ class ItemWidget extends StatelessWidget {
       ),
     );
   }
+}
+
+class Item {
+  final String? id;
+  String? listId;
+  final String? title;
+
+  Item({this.id, this.listId, this.title});
 }
 
 class FloatingWidget extends StatelessWidget {
