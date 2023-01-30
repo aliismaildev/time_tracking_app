@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:time_tracking_app/views/base_views/base_views.dart';
 
 class HomeView extends StatefulWidget {
   final double tileHeight = 100;
@@ -207,21 +208,15 @@ class _HomeViewState extends State<HomeView> {
       );
     }
 
-    return Scaffold(
-      backgroundColor: const Color.fromRGBO(58, 66, 86, 1.0),
-      appBar: AppBar(title: const Text("HomeView test")),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
+    return BaseScaffold(
+        body: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: board!.keys.map((String key) {
               return SizedBox(
                 width: widget.tileWidth,
                 child: buildHomeViewList(key, board![key]!),
               );
-            }).toList()),
-      ),
-    );
+            }).toList()));
   }
 }
 

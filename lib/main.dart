@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:time_tracking_app/consts/lang.dart';
 import 'package:time_tracking_app/core/viewmodels/home_viewmodel.dart';
-import 'package:time_tracking_app/views/home_view.dart';
+import 'package:time_tracking_app/views/auth/login_view.dart';
+import 'package:time_tracking_app/views/auth/register_view.dart';
+import 'package:time_tracking_app/views/home/home_view.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,10 +35,12 @@ class MyApp extends StatelessWidget {
         //         .copyWith(secondary: AppColors.accent)
         //         .copyWith(secondary: AppColors.accent)),
         navigatorKey: navigate,
-        initialRoute: HomeView.routeName,
+        initialRoute: LoginView.routeName,
         // initialRoute: PlayerDetailView.routeName,
         routes: {
           HomeView.routeName: (context) => const HomeView(),
+          LoginView.routeName: (context) => const LoginView(),
+          RegisterView.routeName: (context) => const RegisterView(),
         },
       ),
     );
