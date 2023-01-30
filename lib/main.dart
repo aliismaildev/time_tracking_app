@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:collection';
 
 void main() {
   runApp(const MyApp());
@@ -7,109 +8,328 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: const Kanban());
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class Item {
+  final String? id;
+  String? listId;
+  final String? title;
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  Item({this.id, this.listId, this.title});
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class Kanban extends StatefulWidget {
+  final double tileHeight = 100;
+  final double headerHeight = 80;
+  final double tileWidth = 300;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+  const Kanban({super.key});
+
+  @override
+  _KanbanState createState() => _KanbanState();
+}
+
+class _KanbanState extends State<Kanban> {
+  LinkedHashMap<String, List<Item>>? board;
+
+  @override
+  void initState() {
+    board = LinkedHashMap();
+    board!.addAll({
+      "1": [
+        Item(id: "1", listId: "1", title: "Pera"),
+        Item(id: "2", listId: "1", title: "Papa"),
+      ],
+      "2": [
+        Item(id: "3", listId: "2", title: "Auto"),
+        Item(id: "4", listId: "2", title: "Bicicleta"),
+        Item(id: "5", listId: "2", title: "Bla bla"),
+      ],
+      "3": [
+        Item(id: "6", listId: "3", title: "Chile"),
+        Item(id: "7", listId: "3", title: "Madagascar"),
+        Item(id: "8", listId: "3", title: "Japón"),
+      ]
     });
+
+    super.initState();
+  }
+
+  buildItemDragTarget(listId, targetPosition, double height) {
+    return DragTarget<Item>(
+      // Will accept others, but not himself
+      onWillAccept: (Item? data) {
+        return board![listId]!.isEmpty || data!.id != board![listId]![targetPosition].id;
+      },
+      // Moves the card into the position
+      onAccept: (Item data) {
+        setState(() {
+          board![data.listId]!.remove(data);
+          data.listId = listId;
+          if (board![listId]!.length > targetPosition) {
+            board![listId]!.insert(targetPosition + 1, data);
+          } else {
+            board![listId]!.add(data);
+          }
+        });
+      },
+      builder: (BuildContext context, List<Item?> data, List<dynamic> rejectedData) {
+        if (data.isEmpty) {
+          // The area that accepts the draggable
+          return Container(
+            height: height,
+          );
+        } else {
+          return Column(
+            // What's shown when hovering on it
+            children: [
+              Container(
+                height: height,
+              ),
+              ...data.map((Item? item) {
+                return Opacity(
+                  opacity: 0.5,
+                  child: ItemWidget(item: item),
+                );
+              }).toList()
+            ],
+          );
+        }
+      },
+    );
+  }
+
+  buildHeader(String listId) {
+    Widget header = SizedBox(
+      height: widget.headerHeight,
+      child: HeaderWidget(title: listId),
+    );
+
+    return Stack(
+      // The header
+      children: [
+        Draggable<String>(
+          data: listId, // A header waiting to be dragged
+          childWhenDragging: Opacity(
+            // The header that's left behind
+            opacity: 0.2,
+            child: header,
+          ),
+          feedback: FloatingWidget(
+            child: SizedBox(
+              // A header floating around
+              width: widget.tileWidth,
+              child: header,
+            ),
+          ),
+          child: header,
+        ),
+        buildItemDragTarget(listId, 0, widget.headerHeight),
+        DragTarget<String>(
+          // Will accept others, but not himself
+          onWillAccept: (String? incomingListId) {
+            return listId != incomingListId;
+          },
+          // Moves the card into the position
+          onAccept: (String incomingListId) {
+            setState(
+              () {
+                LinkedHashMap<String, List<Item>> reorderedBoard = LinkedHashMap();
+                for (String key in board!.keys) {
+                  if (key == incomingListId) {
+                    reorderedBoard[listId] = board![listId]!;
+                  } else if (key == listId) {
+                    reorderedBoard[incomingListId] = board![incomingListId]!;
+                  } else {
+                    reorderedBoard[key] = board![key]!;
+                  }
+                }
+                board = reorderedBoard;
+              },
+            );
+          },
+
+          builder: (BuildContext context, List<String?> data, List<dynamic> rejectedData) {
+            if (data.isEmpty) {
+              // The area that accepts the draggable
+              return SizedBox(
+                height: widget.headerHeight,
+                width: widget.tileWidth,
+              );
+            } else {
+              return Container(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    width: 3,
+                    color: Colors.blueAccent,
+                  ),
+                ),
+                height: widget.headerHeight,
+                width: widget.tileWidth,
+              );
+            }
+          },
+        )
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+    buildKanbanList(String listId, List<Item> items) {
+      return SingleChildScrollView(
+        scrollDirection: Axis.vertical,
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
+          children: [
+            buildHeader(listId),
+            ListView.builder(
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              itemCount: items.length,
+              itemBuilder: (BuildContext context, int index) {
+                // A stack that provides:
+                // * A draggable object
+                // * An area for incoming draggables
+                return Stack(
+                  children: [
+                    Draggable<Item>(
+                      data: items[index], // A card waiting to be dragged
+                      childWhenDragging: Opacity(
+                        // The card that's left behind
+                        opacity: 0.2,
+                        child: ItemWidget(item: items[index]),
+                      ),
+                      feedback: SizedBox(
+                        // A card floating around
+                        height: widget.tileHeight,
+                        width: widget.tileWidth,
+                        child: FloatingWidget(
+                            child: ItemWidget(
+                          item: items[index],
+                        )),
+                      ),
+                      child: ItemWidget(
+                        item: items[index],
+                      ),
+                    ),
+                    buildItemDragTarget(listId, index, widget.tileHeight),
+                  ],
+                );
+              },
             ),
           ],
         ),
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: const Color.fromRGBO(58, 66, 86, 1.0),
+      appBar: AppBar(title: const Text("Kanban test")),
+      body: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: board!.keys.map((String key) {
+              return SizedBox(
+                width: widget.tileWidth,
+                child: buildKanbanList(key, board![key]!),
+              );
+            }).toList()),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+}
+
+// The list header (static)
+class HeaderWidget extends StatelessWidget {
+  final String? title;
+
+  const HeaderWidget({Key? key, this.title}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      color: Colors.teal,
+      child: ListTile(
+        dense: true,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20.0,
+          vertical: 10.0,
+        ),
+        title: Text(
+          title!,
+          style: const TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        trailing: const Icon(
+          Icons.sort,
+          color: Colors.white,
+          size: 30.0,
+        ),
+        onTap: () {},
+      ),
+    );
+  }
+}
+
+// The card (static)
+class ItemWidget extends StatelessWidget {
+  final Item? item;
+
+  const ItemWidget({Key? key, this.item}) : super(key: key);
+
+  ListTile makeListTile(Item item) => ListTile(
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20.0,
+          vertical: 10.0,
+        ),
+        title: Text(
+          item.title!,
+          style: const TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        subtitle: Text("listId: ${item.listId}"),
+        trailing: const Icon(
+          Icons.sort,
+          color: Colors.white,
+          size: 30.0,
+        ),
+        onTap: () {},
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 8.0,
+      margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Color.fromRGBO(64, 75, 96, .9),
+        ),
+        child: makeListTile(item!),
+      ),
+    );
+  }
+}
+
+class FloatingWidget extends StatelessWidget {
+  final Widget? child;
+
+  const FloatingWidget({Key? key, this.child}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return child!;
   }
 }
