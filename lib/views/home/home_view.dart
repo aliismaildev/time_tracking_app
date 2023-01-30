@@ -210,6 +210,7 @@ class _HomeViewState extends State<HomeView> {
 
     return BaseScaffold(
         scrollDirection: Axis.horizontal,
+        showAppBar: true,
         body: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: board!.keys.map((String key) {
