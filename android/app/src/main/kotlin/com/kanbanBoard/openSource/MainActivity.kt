@@ -1,4 +1,4 @@
-package com.example.time_tracking_app
+package com.kanbanBoard.openSource
 
 import io.flutter.embedding.android.FlutterActivity
 
