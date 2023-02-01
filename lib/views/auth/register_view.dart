@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:time_tracking_app/consts/colors.dart';
 import 'package:time_tracking_app/consts/lang.dart';
+import 'package:time_tracking_app/core/viewmodels/auth_viewmodel.dart';
 import 'package:time_tracking_app/utils/percentage_size_ext.dart';
 import 'package:time_tracking_app/views/base_views/base_views.dart';
 import 'package:time_tracking_app/views/home/home_view.dart';
@@ -14,6 +16,7 @@ class RegisterView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final read = context.read<AuthViewModel>();
     return BaseScaffold(
       showAppBar: false,
       body: ConstrainedBox(
@@ -30,35 +33,50 @@ class RegisterView extends StatelessWidget {
                   hintTxt: Lang.name,
                   validator: (String? val) {
                     if (val!.isEmpty) {
-                      return 'Please enter Name';
+                      return "${Lang.name} ${Lang.isRequired}";
                     }
                     return null;
                   },
-                  textEditingController: TextEditingController()),
-              CustomTxtField(hintTxt: Lang.age, textEditingController: TextEditingController()),
+                  textEditingController: read.nameController),
               CustomTxtField(
-                textEditingController: TextEditingController(),
+                hintTxt: Lang.age,
+                textEditingController: read.ageController,
+                textInputType: TextInputType.number,
                 validator: (String? val) {
                   if (val!.isEmpty) {
-                    return 'Please enter Age';
+                    return "${Lang.age} ${Lang.isRequired}";
+                  }
+                  return null;
+                },
+              ),
+              CustomTxtField(
+                hintTxt: Lang.email,
+                textEditingController: read.emailController,
+                validator: (String? val) {
+                  if (val!.isEmpty) {
+                    return "${Lang.email} ${Lang.isRequired}";
                   }
                   return null;
                 },
               ),
               CustomTxtField(
                 hintTxt: Lang.password,
-                textEditingController: TextEditingController(),
+                textEditingController: read.passwordController,
+                isHiddenPassword: true,
                 validator: (String? val) {
                   if (val!.isEmpty) {
-                    return 'Please enter Password';
+                    return "${Lang.password} ${Lang.isRequired}";
                   }
                   return null;
                 },
               ),
               AppElevatedButton(
                 title: Lang.register,
-                onPressed: () {
-                  Navigator.pushNamed(context, HomeView.routeName);
+                onPressed: () async {
+                  final result = await read.register();
+                  if (result.isSuccess) {
+                    Navigator.pushNamed(context, HomeView.routeName);
+                  } else {}
                 },
               ),
               Padding(
@@ -66,9 +84,7 @@ class RegisterView extends StatelessWidget {
                   top: context.percentHeight * 3.5,
                   bottom: context.percentHeight * 1.5,
                 ),
-                child: subText2(
-                    '${Lang.alreadyRegisteredUser} ${Lang.questionMark}',
-                    fontWeight: FontWeight.w500),
+                child: subText2('${Lang.alreadyRegisteredUser} ${Lang.questionMark}', fontWeight: FontWeight.w500),
               ),
               AppElevatedButton(
                 backgroundColor: AppColors.textColor,

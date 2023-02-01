@@ -5,6 +5,7 @@ import 'package:time_tracking_app/utils/percentage_size_ext.dart';
 class CustomTxtField extends StatelessWidget {
   final String? hintTxt;
   final bool isHiddenPassword;
+  final TextInputType textInputType;
   final TextInputAction textInputAction;
   final String? Function(String?)? validator;
 
@@ -14,6 +15,7 @@ class CustomTxtField extends StatelessWidget {
       {Key? key,
       this.hintTxt,
       this.validator,
+      this.textInputType = TextInputType.name,
       this.textInputAction = TextInputAction.next,
       this.textEditingController,
       this.isHiddenPassword = false})
@@ -33,6 +35,7 @@ class CustomTxtField extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: context.percentWidth * 3.0),
           child: TextFormField(
             textInputAction: textInputAction,
+            keyboardType: textInputType,
             cursorColor: AppColors.accent,
             controller: textEditingController,
             obscureText: isHiddenPassword,

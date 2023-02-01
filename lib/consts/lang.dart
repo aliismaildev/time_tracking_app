@@ -5,6 +5,7 @@ class Lang {
   static const String timeTrackingApp = 'Time Tracking App';
   static const String logIn = 'Log in';
   static const String register = 'Register';
+  static const String isRequired = 'is Required';
   static const String name = 'Name';
   static const String age = 'Age';
   static const String email = 'Email';
