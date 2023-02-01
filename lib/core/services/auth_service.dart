@@ -4,6 +4,8 @@ import 'package:result_type/result_type.dart';
 import 'package:time_tracking_app/utils/firebase_global_instances.dart';
 
 class AuthService {
+  User? get currentUser => fireBaseAuth.currentUser;
+
   Future<Result<UserCredential, Object>> register({
     required String email,
     required String password,

@@ -75,8 +75,11 @@ class RegisterView extends StatelessWidget {
                 onPressed: () async {
                   final result = await read.register();
                   if (result.isSuccess) {
+                    await read.createBaseProfile();
                     Navigator.pushNamed(context, HomeView.routeName);
-                  } else {}
+                  } else {
+                    //show some error
+                  }
                 },
               ),
               Padding(
