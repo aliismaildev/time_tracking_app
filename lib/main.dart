@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:time_tracking_app/consts/lang.dart';
+import 'package:time_tracking_app/core/viewmodels/auth_viewmodel.dart';
 import 'package:time_tracking_app/core/viewmodels/home_viewmodel.dart';
 import 'package:time_tracking_app/views/auth/login_view.dart';
 import 'package:time_tracking_app/views/auth/register_view.dart';
@@ -17,7 +18,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<HomeViewModelModel>(create: (_) => HomeViewModelModel()),
+        ChangeNotifierProvider<HomeViewModel>(create: (_) => HomeViewModel()),
+        ChangeNotifierProvider<AuthViewModel>(create: (_) => AuthViewModel()),
       ],
       child: MaterialApp(
         title: Lang.timeTrackingApp,

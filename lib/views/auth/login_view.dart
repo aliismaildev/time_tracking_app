@@ -28,6 +28,7 @@ class LoginView extends StatelessWidget {
                 height: context.percentHeight * 3.0,
               ),
               CustomTxtField(
+                hintTxt: Lang.email,
                 textEditingController: TextEditingController(),
                 validator: (String? val) {
                   if (val!.isEmpty) {
