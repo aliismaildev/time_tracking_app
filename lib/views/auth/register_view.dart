@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:time_tracking_app/consts/colors.dart';
+import 'package:time_tracking_app/consts/enums.dart';
 import 'package:time_tracking_app/consts/lang.dart';
 import 'package:time_tracking_app/core/viewmodels/auth_viewmodel.dart';
 import 'package:time_tracking_app/utils/percentage_size_ext.dart';
@@ -17,6 +18,7 @@ class RegisterView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final read = context.read<AuthViewModel>();
+    final watch = context.watch<AuthViewModel>();
     return BaseScaffold(
       showAppBar: false,
       body: ConstrainedBox(
@@ -30,14 +32,23 @@ class RegisterView extends StatelessWidget {
                 height: context.percentHeight * 3.0,
               ),
               CustomTxtField(
-                  hintTxt: Lang.name,
+                  hintTxt: '${Lang.first} ${Lang.name}',
                   validator: (String? val) {
                     if (val!.isEmpty) {
-                      return "${Lang.name} ${Lang.isRequired}";
+                      return "'${Lang.first} ${Lang.name}' ${Lang.isRequired}";
                     }
                     return null;
                   },
-                  textEditingController: read.nameController),
+                  textEditingController: read.firstNameController),
+              CustomTxtField(
+                  hintTxt: '${Lang.last} ${Lang.name}',
+                  validator: (String? val) {
+                    if (val!.isEmpty) {
+                      return "${Lang.last} ${Lang.name}' ${Lang.isRequired}";
+                    }
+                    return null;
+                  },
+                  textEditingController: read.lastNameController),
               CustomTxtField(
                 hintTxt: Lang.age,
                 textEditingController: read.ageController,
@@ -70,18 +81,19 @@ class RegisterView extends StatelessWidget {
                   return null;
                 },
               ),
-              AppElevatedButton(
-                title: Lang.register,
-                onPressed: () async {
-                  final result = await read.register();
-                  if (result.isSuccess) {
-                    await read.createBaseProfile();
-                    Navigator.pushNamed(context, HomeView.routeName);
-                  } else {
-                    //show some error
-                  }
-                },
-              ),
+              watch.viewState == ViewState.busy
+                  ? const CircularProgressIndicator()
+                  : AppElevatedButton(
+                      title: Lang.register,
+                      onPressed: () async {
+                        final result = await read.register();
+                        if (result.isSuccess) {
+                          if (context.mounted) Navigator.pushNamed(context, HomeView.routeName);
+                        } else {
+                          //show some error
+                        }
+                      },
+                    ),
               Padding(
                 padding: EdgeInsets.only(
                   top: context.percentHeight * 3.5,

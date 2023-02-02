@@ -1,7 +1,8 @@
 class ProfileDataModel {
   ProfileDataModel({
     this.uid,
-    this.name,
+    this.firstName,
+    this.lastName,
     this.email,
     this.age,
     this.createdAt,
@@ -9,7 +10,8 @@ class ProfileDataModel {
   });
 
   String? uid;
-  String? name;
+  String? firstName;
+  String? lastName;
   String? email;
   int? age;
   int? createdAt;
@@ -18,7 +20,8 @@ class ProfileDataModel {
   ProfileDataModel.fromJson(Map<String, dynamic> json) {
     uid = json['uid'] as String;
     email = json['email'] as String;
-    name = json['name'] as String;
+    firstName = json['first_name'] as String;
+    lastName = json['last_name'] as String;
     age = json['age'] as int;
     createdAt = json['createdAt'] as int;
     updatedAt = json['updatedAt'] as int;
@@ -27,7 +30,8 @@ class ProfileDataModel {
   Map<String, dynamic> toJson() {
     final data = <String, dynamic>{};
     data['uid'] = uid ?? "";
-    data['name'] = name ?? "";
+    data['first_name'] = firstName ?? "";
+    data['last_name'] = lastName ?? "";
     data['email'] = email ?? "";
     data['age'] = age ?? 0;
     data['createdAt'] = DateTime.now().millisecondsSinceEpoch;

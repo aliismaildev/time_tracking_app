@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:result_type/result_type.dart';
 import 'package:time_tracking_app/consts/enums.dart';
 import 'package:time_tracking_app/core/models/profile_datamodel.dart';
@@ -13,30 +12,47 @@ class AuthViewModel extends BaseViewModel {
   final ProfileDataModel _profileDataModel = ProfileDataModel();
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  final TextEditingController nameController = TextEditingController(),
+  final TextEditingController firstNameController = TextEditingController(),
+      lastNameController = TextEditingController(),
       emailController = TextEditingController(),
       ageController = TextEditingController(),
       passwordController = TextEditingController();
 
-  Future<Result<UserCredential, Object>> register() async {
+  Future<Result> register() async {
+    Result? result;
     viewState = ViewState.busy;
-    final res = await _authService.register(email: emailController.text, password: passwordController.text);
+    result = await _authService.register(email: emailController.text, password: passwordController.text);
+    if (result.isSuccess) {
+      result = await _createBaseProfile(); //create profile in DB
+    }
     viewState = ViewState.idle;
-    return res;
+    return result;
   }
 
-  Future<void> createBaseProfile() async {
-    viewState = ViewState.busy;
-
+  Future<Result> _createBaseProfile() async {
     _profileDataModel.uid = _authService.currentUser?.uid;
+    _profileDataModel.firstName = firstNameController.text;
+    _profileDataModel.lastName = lastNameController.text;
     _profileDataModel.email = _authService.currentUser?.email;
     _profileDataModel.age = int.parse(ageController.text);
 
-    await _profileService.setProfile(
+    Result res = await _profileService.setProfile(
       userID: _authService.currentUser!.uid,
       profileDataModel: _profileDataModel,
     );
 
-    viewState = ViewState.idle;
+    if (res.isSuccess) {
+      _clearRegisterFormFields();
+    }
+
+    return res;
+  }
+
+  _clearRegisterFormFields() {
+    firstNameController.clear();
+    lastNameController.clear();
+    ageController.clear();
+    emailController.clear();
+    passwordController.clear();
   }
 }
