@@ -37,7 +37,7 @@ class LoginView extends StatelessWidget {
                 textEditingController: TextEditingController(),
                 validator: (String? val) {
                   if (val!.isEmpty) {
-                    return 'Please enter Email';
+                    return '${Lang.email} ${Lang.isRequired}';
                   }
                   return null;
                 },
@@ -47,7 +47,7 @@ class LoginView extends StatelessWidget {
                 textEditingController: TextEditingController(),
                 validator: (String? val) {
                   if (val!.isEmpty) {
-                    return 'Please enter Password';
+                    return '${Lang.password} ${Lang.isRequired}';
                   }
                   return null;
                 },
