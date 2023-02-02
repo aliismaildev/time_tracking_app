@@ -11,6 +11,9 @@ class Lang {
   static const String last = 'Last';
   static const String age = 'Age';
   static const String email = 'Email';
+  static const String toDo = 'To Do';
+  static const String inProgress = 'In Progress';
+  static const String done = 'Done';
   static const String password = 'Password';
   static const String newUser = 'New User';
   static const String questionMark = '?';

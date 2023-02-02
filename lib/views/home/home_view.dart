@@ -1,6 +1,9 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:time_tracking_app/consts/enums.dart';
+import 'package:time_tracking_app/consts/strings_of_enums.dart';
+import 'package:time_tracking_app/utils/percentage_size_ext.dart';
 import 'package:time_tracking_app/views/base_views/base_views.dart';
 
 class HomeView extends StatefulWidget {
@@ -22,19 +25,19 @@ class _HomeViewState extends State<HomeView> {
   void initState() {
     board = LinkedHashMap();
     board!.addAll({
-      "1": [
-        Item(id: "1", listId: "1", title: "Pera"),
-        Item(id: "2", listId: "1", title: "Papa"),
+      taskStatusString(TaskStatus.toDo): [
+        Item(id: "1", listId: taskStatusString(TaskStatus.toDo), title: "Pera"),
+        Item(id: "2", listId: taskStatusString(TaskStatus.toDo), title: "Papa"),
       ],
-      "2": [
-        Item(id: "3", listId: "2", title: "Auto"),
-        Item(id: "4", listId: "2", title: "Bicicleta"),
-        Item(id: "5", listId: "2", title: "Bla bla"),
+      taskStatusString(TaskStatus.inProgress): [
+        Item(id: "3", listId: taskStatusString(TaskStatus.inProgress), title: "Auto"),
+        Item(id: "4", listId: taskStatusString(TaskStatus.inProgress), title: "Bicicleta"),
+        Item(id: "5", listId: taskStatusString(TaskStatus.inProgress), title: "Bla bla"),
       ],
-      "3": [
-        Item(id: "6", listId: "3", title: "Chile"),
-        Item(id: "7", listId: "3", title: "Madagascar"),
-        Item(id: "8", listId: "3", title: "Japón"),
+      taskStatusString(TaskStatus.done): [
+        Item(id: "6", listId: taskStatusString(TaskStatus.done), title: "Chile"),
+        Item(id: "7", listId: taskStatusString(TaskStatus.done), title: "Madagascar"),
+        Item(id: "8", listId: taskStatusString(TaskStatus.done), title: "Japón"),
       ]
     });
 
@@ -165,45 +168,48 @@ class _HomeViewState extends State<HomeView> {
     buildHomeViewList(String listId, List<Item> items) {
       return SingleChildScrollView(
         scrollDirection: Axis.vertical,
-        child: Column(
-          children: [
-            buildHeader(listId),
-            ListView.builder(
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              itemCount: items.length,
-              itemBuilder: (BuildContext context, int index) {
-                // A stack that provides:
-                // * A draggable object
-                // * An area for incoming draggables
-                return Stack(
-                  children: [
-                    Draggable<Item>(
-                      data: items[index], // A card waiting to be dragged
-                      childWhenDragging: Opacity(
-                        // The card that's left behind
-                        opacity: 0.2,
-                        child: ItemWidget(item: items[index]),
-                      ),
-                      feedback: SizedBox(
-                        // A card floating around
-                        height: widget.tileHeight,
-                        width: widget.tileWidth,
-                        child: FloatingWidget(
-                            child: ItemWidget(
+        child: SizedBox(
+          height: context.screenHeight,
+          child: Column(
+            children: [
+              buildHeader(listId),
+              ListView.builder(
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                itemCount: items.length,
+                itemBuilder: (BuildContext context, int index) {
+                  // A stack that provides:
+                  // * A draggable object
+                  // * An area for incoming draggables
+                  return Stack(
+                    children: [
+                      Draggable<Item>(
+                        data: items[index], // A card waiting to be dragged
+                        childWhenDragging: Opacity(
+                          // The card that's left behind
+                          opacity: 0.2,
+                          child: ItemWidget(item: items[index]),
+                        ),
+                        feedback: SizedBox(
+                          // A card floating around
+                          height: widget.tileHeight,
+                          width: widget.tileWidth,
+                          child: FloatingWidget(
+                              child: ItemWidget(
+                            item: items[index],
+                          )),
+                        ),
+                        child: ItemWidget(
                           item: items[index],
-                        )),
+                        ),
                       ),
-                      child: ItemWidget(
-                        item: items[index],
-                      ),
-                    ),
-                    buildItemDragTarget(listId, index, widget.tileHeight),
-                  ],
-                );
-              },
-            ),
-          ],
+                      buildItemDragTarget(listId, index, widget.tileHeight),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       );
     }
