@@ -14,5 +14,6 @@ class Lang {
   static const String password = 'Password';
   static const String newUser = 'New User';
   static const String questionMark = '?';
+  static const String logout = 'Logout';
   static const String alreadyRegisteredUser = 'Already a registered user';
 }
