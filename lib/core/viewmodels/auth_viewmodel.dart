@@ -33,6 +33,13 @@ class AuthViewModel extends BaseViewModel {
     return result;
   }
 
+  Future<Result<UserCredential, Object>> login() async {
+    viewState = ViewState.busy;
+    final res = await _authService.login(email: emailController.text, password: passwordController.text);
+    viewState = ViewState.idle;
+    return res;
+  }
+
   Future<void> logOut() async => _authService.logOut();
 
   Future<Result> _createBaseProfile() async {

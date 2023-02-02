@@ -4,6 +4,8 @@ import 'package:result_type/result_type.dart';
 import 'package:time_tracking_app/utils/firebase_global_instances.dart';
 
 class AuthService {
+  //register
+
   Future<Result<UserCredential, Object>> register({
     required String email,
     required String password,
@@ -22,6 +24,36 @@ class AuthService {
         return Failure('The password provided is too weak.');
       } else if (e.code == 'email-already-in-use') {
         return Failure('The account already exists for that email.');
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+
+      return Failure(e);
+    }
+
+    return Failure('Please try again.');
+  }
+
+  //login
+
+  Future<Result<UserCredential, Object>> login({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final userCredential = await fireBaseAuth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      return Success(userCredential);
+    } on FirebaseAuthException catch (e) {
+      debugPrint(e.toString());
+
+      if (e.code == 'user-not-found') {
+        return Failure('No user found for that email.');
+      } else if (e.code == 'wrong-password') {
+        return Failure('Wrong password provided for that user.');
       }
     } catch (e) {
       debugPrint(e.toString());
