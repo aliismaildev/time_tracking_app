@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:result_type/result_type.dart';
 import 'package:time_tracking_app/consts/enums.dart';
@@ -5,13 +6,16 @@ import 'package:time_tracking_app/core/models/profile_datamodel.dart';
 import 'package:time_tracking_app/core/services/auth_service.dart';
 import 'package:time_tracking_app/core/services/profile_service.dart';
 import 'package:time_tracking_app/core/viewmodels/base_viewmodel.dart';
+import 'package:time_tracking_app/utils/firebase_global_instances.dart';
 
 class AuthViewModel extends BaseViewModel {
   final AuthService _authService = AuthService();
   final ProfileService _profileService = ProfileService();
   final ProfileDataModel _profileDataModel = ProfileDataModel();
-
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  User? get currentUser => fireBaseAuth.currentUser;
+
   final TextEditingController firstNameController = TextEditingController(),
       lastNameController = TextEditingController(),
       emailController = TextEditingController(),
@@ -29,15 +33,17 @@ class AuthViewModel extends BaseViewModel {
     return result;
   }
 
+  Future<void> logOut() async => _authService.logOut();
+
   Future<Result> _createBaseProfile() async {
-    _profileDataModel.uid = _authService.currentUser?.uid;
+    _profileDataModel.uid = currentUser?.uid;
     _profileDataModel.firstName = firstNameController.text;
     _profileDataModel.lastName = lastNameController.text;
-    _profileDataModel.email = _authService.currentUser?.email;
+    _profileDataModel.email = currentUser?.email;
     _profileDataModel.age = int.parse(ageController.text);
 
     Result res = await _profileService.setProfile(
-      userID: _authService.currentUser!.uid,
+      userID: currentUser!.uid,
       profileDataModel: _profileDataModel,
     );
 

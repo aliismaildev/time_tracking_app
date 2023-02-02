@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 import 'package:time_tracking_app/consts/assets.dart';
 import 'package:time_tracking_app/consts/colors.dart';
 import 'package:time_tracking_app/consts/lang.dart';
+import 'package:time_tracking_app/core/viewmodels/auth_viewmodel.dart';
 import 'package:time_tracking_app/utils/percentage_size_ext.dart';
+import 'package:time_tracking_app/views/auth/login_view.dart';
 import 'package:time_tracking_app/views/widgets/text.dart';
 
 class BaseScaffold extends StatelessWidget {
@@ -15,6 +18,7 @@ class BaseScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final read = context.read<AuthViewModel>();
     return Scaffold(
       backgroundColor: const Color.fromRGBO(58, 66, 86, 1.0),
       appBar: showAppBar ? AppBar(title: const Text("HomeView test")) : null,
@@ -35,7 +39,12 @@ class BaseScaffold extends StatelessWidget {
             SizedBox(
               height: context.percentHeight * 5.0,
             ),
-            _drawerListTile(context: context, isLogoutTile: true, title: Lang.logout, icon: AppAssets.logoutSvg, onTap: () {}),
+            _drawerListTile(
+                context: context,
+                isLogoutTile: true,
+                title: Lang.logout,
+                icon: AppAssets.logoutSvg,
+                onTap: () async => await read.logOut().then((value) => Navigator.pushReplacementNamed(context, LoginView.routeName))),
           ],
         ),
       ),

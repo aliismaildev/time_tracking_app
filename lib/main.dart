@@ -10,6 +10,7 @@ import 'package:time_tracking_app/firebase_options.dart';
 import 'package:time_tracking_app/views/auth/login_view.dart';
 import 'package:time_tracking_app/views/auth/register_view.dart';
 import 'package:time_tracking_app/views/home/home_view.dart';
+import 'package:time_tracking_app/views/onboarding/splash_view.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding
@@ -46,9 +47,11 @@ class MyApp extends StatelessWidget {
         //         .copyWith(secondary: AppColors.accent)
         //         .copyWith(secondary: AppColors.accent)),
         navigatorKey: navigate,
-        initialRoute: LoginView.routeName,
+        // initialRoute: read.currentUser != null ? HomeView.routeName : LoginView.routeName,
+        initialRoute: SplashView.routeName,
         // initialRoute: PlayerDetailView.routeName,
         routes: {
+          SplashView.routeName: (context) => const SplashView(),
           HomeView.routeName: (context) => const HomeView(),
           LoginView.routeName: (context) => const LoginView(),
           RegisterView.routeName: (context) => const RegisterView(),
