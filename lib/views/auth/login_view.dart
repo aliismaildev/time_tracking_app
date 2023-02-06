@@ -25,47 +25,55 @@ class LoginView extends StatelessWidget {
       body: ConstrainedBox(
         constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height - kToolbarHeight - MediaQuery.of(context).viewPadding.top),
         child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              headline1(Lang.logIn),
-              SizedBox(
-                height: context.percentHeight * 3.0,
-              ),
-              CustomTxtField(
-                hintTxt: Lang.email,
-                textEditingController: TextEditingController(),
-                validator: (String? val) {
-                  if (val!.isEmpty) {
-                    return '${Lang.email} ${Lang.isRequired}';
-                  }
-                  return null;
-                },
-              ),
-              CustomTxtField(
-                hintTxt: Lang.password,
-                textEditingController: TextEditingController(),
-                validator: (String? val) {
-                  if (val!.isEmpty) {
-                    return '${Lang.password} ${Lang.isRequired}';
-                  }
-                  return null;
-                },
-              ),
-              watch.viewState == ViewState.busy
-                  ? const CircularProgressIndicator()
-                  : AppElevatedButton(
-                      title: Lang.logIn, onPressed: () async => await read.login().then((value) => Navigator.pushNamed(context, HomeView.routeName))),
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: context.percentHeight * 3.0),
-                child: subText2('${Lang.newUser} ${Lang.questionMark}', fontWeight: FontWeight.w500),
-              ),
-              AppElevatedButton(
-                backgroundColor: AppColors.textColor,
-                onPressed: () => Navigator.pushNamed(context, RegisterView.routeName),
-                title: Lang.register,
-              ),
-            ],
+          child: Form(
+            key: read.logInFormKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                headline1(Lang.logIn),
+                SizedBox(
+                  height: context.percentHeight * 3.0,
+                ),
+                CustomTxtField(
+                  hintTxt: Lang.email,
+                  textEditingController: TextEditingController(),
+                  validator: (String? val) {
+                    if (val!.isEmpty) {
+                      return '${Lang.email} ${Lang.isRequired}';
+                    }
+                    return null;
+                  },
+                ),
+                CustomTxtField(
+                  hintTxt: Lang.password,
+                  textEditingController: TextEditingController(),
+                  validator: (String? val) {
+                    if (val!.isEmpty) {
+                      return '${Lang.password} ${Lang.isRequired}';
+                    }
+                    return null;
+                  },
+                ),
+                watch.viewState == ViewState.busy
+                    ? const CircularProgressIndicator()
+                    : AppElevatedButton(
+                        title: Lang.logIn,
+                        onPressed: () async {
+                          if (read.logInFormKey.currentState!.validate()) {
+                            await read.login().then((value) => Navigator.pushNamed(context, HomeView.routeName));
+                          }
+                        }),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: context.percentHeight * 3.0),
+                  child: subText2('${Lang.newUser} ${Lang.questionMark}', fontWeight: FontWeight.w500),
+                ),
+                AppElevatedButton(
+                  backgroundColor: AppColors.textColor,
+                  onPressed: () => Navigator.pushNamed(context, RegisterView.routeName),
+                  title: Lang.register,
+                ),
+              ],
+            ),
           ),
         ),
       ),

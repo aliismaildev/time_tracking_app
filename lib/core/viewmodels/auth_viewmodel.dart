@@ -12,7 +12,8 @@ class AuthViewModel extends BaseViewModel {
   final AuthService _authService = AuthService();
   final ProfileService _profileService = ProfileService();
   final ProfileDataModel _profileDataModel = ProfileDataModel();
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> logInFormKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> signUpFormKey = GlobalKey<FormState>();
 
   User? get currentUser => fireBaseAuth.currentUser;
 
