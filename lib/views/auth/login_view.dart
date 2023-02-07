@@ -37,7 +37,7 @@ class LoginView extends StatelessWidget {
                 ),
                 CustomTxtField(
                   hintTxt: Lang.email,
-                  textEditingController: TextEditingController(),
+                  textEditingController: read.emailController,
                   validator: (String? val) {
                     if (val!.isEmpty) {
                       return '${Lang.email} ${Lang.isRequired}';
@@ -47,7 +47,8 @@ class LoginView extends StatelessWidget {
                 ),
                 CustomTxtField(
                   hintTxt: Lang.password,
-                  textEditingController: TextEditingController(),
+                  isHiddenPassword: true,
+                  textEditingController: read.passwordController,
                   validator: (String? val) {
                     if (val!.isEmpty) {
                       return '${Lang.password} ${Lang.isRequired}';

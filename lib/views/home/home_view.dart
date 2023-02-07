@@ -132,7 +132,7 @@ class _HomeViewState extends State<HomeView> {
           // Moves the card into the position
           onAccept: (String incomingListId) {
             setState(
-              () {
+                  () {
                 LinkedHashMap<String, List<Item>> reorderedBoard = LinkedHashMap();
                 for (String key in board!.keys) {
                   if (key == incomingListId) {
@@ -208,8 +208,8 @@ class _HomeViewState extends State<HomeView> {
                           width: widget.tileWidth,
                           child: FloatingWidget(
                               child: ItemWidget(
-                            item: items[index],
-                          )),
+                                item: items[index],
+                              )),
                         ),
                         child: ItemWidget(
                           item: items[index],
@@ -253,23 +253,24 @@ class HeaderWidget extends StatelessWidget {
     return Card(
       color: Colors.teal,
       child: ListTile(
-        dense: true,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 20.0,
-          vertical: 10.0,
-        ),
-        title: Text(
-          taskStatusString(title),
-          style: const TextStyle(
-            color: Colors.white,
+          dense: true,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20.0,
+            vertical: 10.0,
           ),
-        ),
-        trailing: const Icon(
-          Icons.add,
-          color: Colors.white,
-          size: 30.0,
-        ),
-        onTap: () => _addTask(context: context, title: title!, read: read!, watch: watch!),
+          title: Text(
+            taskStatusString(title),
+            style: const TextStyle(
+              color: Colors.white,
+            ),
+          ),
+          trailing: const Icon(
+            Icons.add,
+            color: Colors.white,
+            size: 30.0,
+          ),
+          // onTap: () => _addTask(context: context, title: title!, read: read!, watch: watch!),
+          onTap: () => read?.getAllTasks()
       ),
     );
   }
@@ -307,20 +308,20 @@ void _addTask({required BuildContext context, required String title, required Ho
           watch.viewState == ViewState.busy
               ? const CircularProgressIndicator()
               : TextButton(
-                  child: const Text(Lang.save),
-                  onPressed: () async {
-                    if (read.addTaskController.text.isNotEmpty) {
-                      final result = await read.addTask(title);
-                      if (result.isSuccess) {
-                        if (context.mounted) Navigator.pop(context);
-                        showToast(msg: Lang.taskAddedSuccessfully);
-                      } else {
-                        showToast(msg: Lang.pleaseTryAgainLater);
-                      }
-                    } else {
-                      showToast(msg: Lang.allFieldsAreRequired);
-                    }
-                  })
+              child: const Text(Lang.save),
+              onPressed: () async {
+                if (read.addTaskController.text.isNotEmpty) {
+                  final result = await read.addTask(title);
+                  if (result.isSuccess) {
+                    if (context.mounted) Navigator.pop(context);
+                    showToast(msg: Lang.taskAddedSuccessfully);
+                  } else {
+                    showToast(msg: Lang.pleaseTryAgainLater);
+                  }
+                } else {
+                  showToast(msg: Lang.allFieldsAreRequired);
+                }
+              })
         ],
       );
     },
@@ -333,7 +334,8 @@ class ItemWidget extends StatelessWidget {
 
   const ItemWidget({Key? key, this.item}) : super(key: key);
 
-  ListTile makeListTile(Item item) => ListTile(
+  ListTile makeListTile(Item item) =>
+      ListTile(
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 20.0,
           vertical: 10.0,

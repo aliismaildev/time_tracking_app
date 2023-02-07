@@ -25,4 +25,10 @@ class HomeViewModel extends BaseViewModel {
     viewState = ViewState.idle;
     return res;
   }
+
+  Future getAllTasks() async {
+    final result = await _homeService.getAllTasks(userID: currentUser!.uid);
+
+    print(result);
+  }
 }
