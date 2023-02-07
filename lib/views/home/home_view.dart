@@ -1,10 +1,15 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:time_tracking_app/consts/enums.dart';
+import 'package:time_tracking_app/consts/lang.dart';
 import 'package:time_tracking_app/consts/strings_of_enums.dart';
+import 'package:time_tracking_app/core/viewmodels/home_viewmodel.dart';
 import 'package:time_tracking_app/utils/percentage_size_ext.dart';
 import 'package:time_tracking_app/views/base_views/base_views.dart';
+import 'package:time_tracking_app/views/widgets/text.dart';
+import 'package:time_tracking_app/views/widgets/text_fields.dart';
 
 class HomeView extends StatefulWidget {
   final double tileHeight = 100;
@@ -88,10 +93,14 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  buildHeader(String listId) {
+  buildHeader({required String listId, required HomeViewModel read, required HomeViewModel watch}) {
     Widget header = SizedBox(
       height: widget.headerHeight,
-      child: HeaderWidget(title: listId),
+      child: HeaderWidget(
+        title: listId,
+        watch: watch,
+        read: read,
+      ),
     );
 
     return Stack(
@@ -165,6 +174,8 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
+    final read = context.read<HomeViewModel>();
+    final watch = context.watch<HomeViewModel>();
     buildHomeViewList(String listId, List<Item> items) {
       return SingleChildScrollView(
         scrollDirection: Axis.vertical,
@@ -172,7 +183,7 @@ class _HomeViewState extends State<HomeView> {
           height: context.screenHeight,
           child: Column(
             children: [
-              buildHeader(listId),
+              buildHeader(listId: listId, read: read, watch: watch),
               ListView.builder(
                 scrollDirection: Axis.vertical,
                 shrinkWrap: true,
@@ -231,8 +242,10 @@ class _HomeViewState extends State<HomeView> {
 // The list header (static)
 class HeaderWidget extends StatelessWidget {
   final String? title;
+  final HomeViewModel? read;
+  final HomeViewModel? watch;
 
-  const HeaderWidget({Key? key, this.title}) : super(key: key);
+  const HeaderWidget({Key? key, this.title, this.read, this.watch}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -251,14 +264,53 @@ class HeaderWidget extends StatelessWidget {
           ),
         ),
         trailing: const Icon(
-          Icons.sort,
+          Icons.add,
           color: Colors.white,
           size: 30.0,
         ),
-        onTap: () {},
+        onTap: () => _addTask(context: context, read: read!, watch: watch!),
       ),
     );
   }
+}
+
+//add task
+
+void _addTask({required BuildContext context, required HomeViewModel read, required HomeViewModel watch}) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        backgroundColor: const Color.fromRGBO(58, 66, 86, 1.0),
+        title: headline3("${Lang.add} ${Lang.task}"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CustomTxtField(
+              hintTxt: Lang.task,
+              textEditingController: TextEditingController(),
+              validator: (String? val) {
+                if (val!.isEmpty) {
+                  return Lang.task;
+                }
+                return null;
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            child: const Text(Lang.cancel),
+            onPressed: () {},
+          ),
+          TextButton(
+            child: const Text(Lang.save),
+            onPressed: () => read.addTask(),
+          )
+        ],
+      );
+    },
+  );
 }
 
 // The card (static)

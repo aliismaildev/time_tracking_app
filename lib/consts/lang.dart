@@ -11,6 +11,10 @@ class Lang {
   static const String last = 'Last';
   static const String age = 'Age';
   static const String email = 'Email';
+  static const String add = 'Add';
+  static const String save = 'Save';
+  static const String cancel = 'Cancel';
+  static const String task = 'Task';
   static const String toDo = 'To Do';
   static const String inProgress = 'In Progress';
   static const String done = 'Done';
