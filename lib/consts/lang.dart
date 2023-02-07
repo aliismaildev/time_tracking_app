@@ -24,4 +24,6 @@ class Lang {
   static const String logout = 'Logout';
   static const String alreadyRegisteredUser = 'Already a registered user';
   static const String allFieldsAreRequired = 'All fields are required';
+  static const String pleaseTryAgainLater = 'Please try again later.';
+  static const String taskAddedSuccessfully = 'Task added Successfully.';
 }

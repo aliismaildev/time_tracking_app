@@ -302,17 +302,25 @@ void _addTask({required BuildContext context, required String title, required Ho
         actions: [
           TextButton(
             child: const Text(Lang.cancel),
-            onPressed: () {},
+            onPressed: () => Navigator.pop(context),
           ),
-          TextButton(
-              child: const Text(Lang.save),
-              onPressed: () {
-                if (read.addTaskController.text.isNotEmpty) {
-                  read.addTask(title);
-                } else {
-                  showToast(msg: Lang.allFieldsAreRequired);
-                }
-              })
+          watch.viewState == ViewState.busy
+              ? const CircularProgressIndicator()
+              : TextButton(
+                  child: const Text(Lang.save),
+                  onPressed: () async {
+                    if (read.addTaskController.text.isNotEmpty) {
+                      final result = await read.addTask(title);
+                      if (result.isSuccess) {
+                        if (context.mounted) Navigator.pop(context);
+                        showToast(msg: Lang.taskAddedSuccessfully);
+                      } else {
+                        showToast(msg: Lang.pleaseTryAgainLater);
+                      }
+                    } else {
+                      showToast(msg: Lang.allFieldsAreRequired);
+                    }
+                  })
         ],
       );
     },
