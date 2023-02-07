@@ -11,6 +11,7 @@ import 'package:time_tracking_app/views/home/home_view.dart';
 import 'package:time_tracking_app/views/widgets/buttons.dart';
 import 'package:time_tracking_app/views/widgets/text.dart';
 import 'package:time_tracking_app/views/widgets/text_fields.dart';
+import 'package:time_tracking_app/views/widgets/toast.dart';
 
 class LoginView extends StatelessWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -60,7 +61,13 @@ class LoginView extends StatelessWidget {
                         title: Lang.logIn,
                         onPressed: () async {
                           if (read.logInFormKey.currentState!.validate()) {
-                            await read.login().then((value) => Navigator.pushNamed(context, HomeView.routeName));
+                            final result = await read.login();
+
+                            if (result.isSuccess) {
+                              if (context.mounted) Navigator.pushNamed(context, HomeView.routeName);
+                            } else {
+                              showToast(msg: result.toString());
+                            }
                           }
                         }),
                 Padding(

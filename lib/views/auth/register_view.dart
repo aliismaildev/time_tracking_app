@@ -10,6 +10,7 @@ import 'package:time_tracking_app/views/home/home_view.dart';
 import 'package:time_tracking_app/views/widgets/buttons.dart';
 import 'package:time_tracking_app/views/widgets/text.dart';
 import 'package:time_tracking_app/views/widgets/text_fields.dart';
+import 'package:time_tracking_app/views/widgets/toast.dart';
 
 class RegisterView extends StatelessWidget {
   const RegisterView({Key? key}) : super(key: key);
@@ -90,7 +91,7 @@ class RegisterView extends StatelessWidget {
                         if (result.isSuccess) {
                           if (context.mounted) Navigator.pushNamed(context, HomeView.routeName);
                         } else {
-                          //show some error
+                          showToast(msg: result.toString());
                         }
                       },
                     ),

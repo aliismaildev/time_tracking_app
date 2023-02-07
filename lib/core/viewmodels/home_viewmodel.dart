@@ -14,8 +14,11 @@ class HomeViewModel extends BaseViewModel {
 
   final TextEditingController addTaskController = TextEditingController();
 
-  Future<Result> addTask() async {
+  Future<Result> addTask(String listId) async {
     _taskDataModel.taskDescription = addTaskController.text;
+    _taskDataModel.taskStatus = listId;
+    _taskDataModel.taskId = DateTime.now().millisecondsSinceEpoch.toString();
+
     Result res = await _homeService.addTask(userID: currentUser!.uid, taskDataModel: _taskDataModel);
     return res;
   }

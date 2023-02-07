@@ -10,6 +10,7 @@ import 'package:time_tracking_app/utils/percentage_size_ext.dart';
 import 'package:time_tracking_app/views/base_views/base_views.dart';
 import 'package:time_tracking_app/views/widgets/text.dart';
 import 'package:time_tracking_app/views/widgets/text_fields.dart';
+import 'package:time_tracking_app/views/widgets/toast.dart';
 
 class HomeView extends StatefulWidget {
   final double tileHeight = 100;
@@ -30,19 +31,19 @@ class _HomeViewState extends State<HomeView> {
   void initState() {
     board = LinkedHashMap();
     board!.addAll({
-      taskStatusString(TaskStatus.toDo): [
-        Item(id: "1", listId: taskStatusString(TaskStatus.toDo), title: "Pera"),
-        Item(id: "2", listId: taskStatusString(TaskStatus.toDo), title: "Papa"),
+      TaskStatus.toDo.toString(): [
+        Item(id: "1", listId: TaskStatus.toDo.toString(), title: "Pera"),
+        Item(id: "2", listId: TaskStatus.toDo.toString(), title: "Papa"),
       ],
-      taskStatusString(TaskStatus.inProgress): [
-        Item(id: "3", listId: taskStatusString(TaskStatus.inProgress), title: "Auto"),
-        Item(id: "4", listId: taskStatusString(TaskStatus.inProgress), title: "Bicicleta"),
-        Item(id: "5", listId: taskStatusString(TaskStatus.inProgress), title: "Bla bla"),
+      TaskStatus.inProgress.toString(): [
+        Item(id: "3", listId: TaskStatus.inProgress.toString(), title: "Auto"),
+        Item(id: "4", listId: TaskStatus.inProgress.toString(), title: "Bicicleta"),
+        Item(id: "5", listId: TaskStatus.inProgress.toString(), title: "Bla bla"),
       ],
-      taskStatusString(TaskStatus.done): [
-        Item(id: "6", listId: taskStatusString(TaskStatus.done), title: "Chile"),
-        Item(id: "7", listId: taskStatusString(TaskStatus.done), title: "Madagascar"),
-        Item(id: "8", listId: taskStatusString(TaskStatus.done), title: "Japón"),
+      TaskStatus.done.toString(): [
+        Item(id: "6", listId: TaskStatus.done.toString(), title: "Chile"),
+        Item(id: "7", listId: TaskStatus.done.toString(), title: "Madagascar"),
+        Item(id: "8", listId: TaskStatus.done.toString(), title: "Japón"),
       ]
     });
 
@@ -258,7 +259,7 @@ class HeaderWidget extends StatelessWidget {
           vertical: 10.0,
         ),
         title: Text(
-          title!,
+          taskStatusString(title),
           style: const TextStyle(
             color: Colors.white,
           ),
@@ -268,7 +269,7 @@ class HeaderWidget extends StatelessWidget {
           color: Colors.white,
           size: 30.0,
         ),
-        onTap: () => _addTask(context: context, read: read!, watch: watch!),
+        onTap: () => _addTask(context: context, title: title!, read: read!, watch: watch!),
       ),
     );
   }
@@ -276,7 +277,7 @@ class HeaderWidget extends StatelessWidget {
 
 //add task
 
-void _addTask({required BuildContext context, required HomeViewModel read, required HomeViewModel watch}) {
+void _addTask({required BuildContext context, required String title, required HomeViewModel read, required HomeViewModel watch}) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -288,7 +289,7 @@ void _addTask({required BuildContext context, required HomeViewModel read, requi
           children: [
             CustomTxtField(
               hintTxt: Lang.task,
-              textEditingController: TextEditingController(),
+              textEditingController: read.addTaskController,
               validator: (String? val) {
                 if (val!.isEmpty) {
                   return Lang.task;
@@ -304,9 +305,14 @@ void _addTask({required BuildContext context, required HomeViewModel read, requi
             onPressed: () {},
           ),
           TextButton(
-            child: const Text(Lang.save),
-            onPressed: () => read.addTask(),
-          )
+              child: const Text(Lang.save),
+              onPressed: () {
+                if (read.addTaskController.text.isNotEmpty) {
+                  read.addTask(title);
+                } else {
+                  showToast(msg: Lang.allFieldsAreRequired);
+                }
+              })
         ],
       );
     },
@@ -330,7 +336,7 @@ class ItemWidget extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-        subtitle: Text("listId: ${item.listId}"),
+        subtitle: Text("listId: ${taskStatusString(item.listId)}"),
         trailing: const Icon(
           Icons.sort,
           color: Colors.white,

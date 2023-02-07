@@ -23,4 +23,5 @@ class Lang {
   static const String questionMark = '?';
   static const String logout = 'Logout';
   static const String alreadyRegisteredUser = 'Already a registered user';
+  static const String allFieldsAreRequired = 'All fields are required';
 }
