@@ -21,7 +21,8 @@ class HomeViewModel extends BaseViewModel {
     _taskDataModel.taskStatus = listId;
     _taskDataModel.taskId = DateTime.now().millisecondsSinceEpoch.toString();
 
-    Result res = await _homeService.addTask(userID: currentUser!.uid, taskDataModel: _taskDataModel);
+    Result res = await _homeService.addTask(
+        userID: currentUser!.uid, taskDataModel: _taskDataModel);
     viewState = ViewState.idle;
     return res;
   }
