@@ -26,31 +26,41 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  LinkedHashMap<String, List<Item>>? board;
+  LinkedHashMap<String, List<TaskDataModel>>? board;
 
   @override
   void initState() {
     board = LinkedHashMap();
     board!.addAll({
       TaskStatus.toDo.toString(): [
-        Item(id: "1", listId: TaskStatus.toDo.toString(), title: "Pera"),
-        Item(id: "2", listId: TaskStatus.toDo.toString(), title: "Papa"),
+        TaskDataModel(
+            taskId: '51262',
+            taskStatus: TaskStatus.toDo.toString(),
+            taskDescription: "Task 1"),
+        TaskDataModel(
+            taskId: '51262',
+            taskStatus: TaskStatus.toDo.toString(),
+            taskDescription: "Task 2"),
       ],
       TaskStatus.inProgress.toString(): [
-        Item(id: "3", listId: TaskStatus.inProgress.toString(), title: "Auto"),
-        Item(
-            id: "4",
-            listId: TaskStatus.inProgress.toString(),
-            title: "Bicicleta"),
-        Item(
-            id: "5",
-            listId: TaskStatus.inProgress.toString(),
-            title: "Bla bla"),
+        TaskDataModel(
+            taskId: '51262',
+            taskStatus:   TaskStatus.inProgress.toString(),
+            taskDescription: "Task 3"),
+        TaskDataModel(
+            taskId: '51262',
+            taskStatus:   TaskStatus.inProgress.toString(),
+            taskDescription: "Task 4"),
       ],
       TaskStatus.done.toString(): [
-        Item(id: "6", listId: TaskStatus.done.toString(), title: "Chile"),
-        Item(id: "7", listId: TaskStatus.done.toString(), title: "Madagascar"),
-        Item(id: "8", listId: TaskStatus.done.toString(), title: "Japón"),
+        TaskDataModel(
+            taskId: '51262',
+            taskStatus:   TaskStatus.done.toString(),
+            taskDescription: "Task 5"),
+        TaskDataModel(
+            taskId: '51262',
+            taskStatus:   TaskStatus.done.toString(),
+            taskDescription: "Task 6"),
       ]
     });
 
@@ -58,17 +68,17 @@ class _HomeViewState extends State<HomeView> {
   }
 
   buildItemDragTarget(listId, targetPosition, double height) {
-    return DragTarget<Item>(
+    return DragTarget<TaskDataModel>(
       // Will accept others, but not himself
-      onWillAccept: (Item? data) {
+      onWillAccept: (TaskDataModel? data) {
         return board![listId]!.isEmpty ||
-            data!.id != board![listId]![targetPosition].id;
+            data!.taskId != board![listId]![targetPosition].taskId;
       },
       // Moves the card into the position
-      onAccept: (Item data) {
+      onAccept: (TaskDataModel data) {
         setState(() {
-          board![data.listId]!.remove(data);
-          data.listId = listId;
+          board![data.taskStatus]!.remove(data);
+          data.taskStatus = listId;
           if (board![listId]!.length > targetPosition) {
             board![listId]!.insert(targetPosition + 1, data);
           } else {
@@ -77,7 +87,7 @@ class _HomeViewState extends State<HomeView> {
         });
       },
       builder:
-          (BuildContext context, List<Item?> data, List<dynamic> rejectedData) {
+          (BuildContext context, List<TaskDataModel?> data, List<dynamic> rejectedData) {
         if (data.isEmpty) {
           // The area that accepts the draggable
           return Container(
@@ -90,7 +100,7 @@ class _HomeViewState extends State<HomeView> {
               Container(
                 height: height,
               ),
-              ...data.map((Item? item) {
+              ...data.map((TaskDataModel? item) {
                 return Opacity(
                   opacity: 0.5,
                   child: ItemWidget(item: item),
@@ -145,7 +155,7 @@ class _HomeViewState extends State<HomeView> {
           onAccept: (String incomingListId) {
             setState(
               () {
-                LinkedHashMap<String, List<Item>> reorderedBoard =
+                LinkedHashMap<String, List<TaskDataModel>> reorderedBoard =
                     LinkedHashMap();
                 for (String key in board!.keys) {
                   if (key == incomingListId) {
@@ -191,7 +201,7 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     final read = context.read<HomeViewModel>();
     final watch = context.watch<HomeViewModel>();
-    buildHomeViewList(String listId, List<Item> items) {
+    buildHomeViewList(String listId, List<TaskDataModel> items) {
       return SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: SizedBox(
@@ -221,10 +231,9 @@ class _HomeViewState extends State<HomeView> {
                       shrinkWrap: true,
                       itemCount: items.length,
                       itemBuilder: (BuildContext context, int index) {
-
                         return Stack(
                           children: [
-                            Draggable<Item>(
+                            Draggable<TaskDataModel>(
                               data: items[index],
                               // A card waiting to be dragged
                               childWhenDragging: Opacity(
@@ -366,22 +375,22 @@ void _addTask(
 
 // The card (static)
 class ItemWidget extends StatelessWidget {
-  final Item? item;
+  final TaskDataModel? item;
 
   const ItemWidget({Key? key, this.item}) : super(key: key);
 
-  ListTile makeListTile(Item item) => ListTile(
+  ListTile makeListTile(TaskDataModel item) => ListTile(
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 20.0,
           vertical: 10.0,
         ),
         title: Text(
-          item.title!,
+          item.taskDescription!,
           style: const TextStyle(
             color: Colors.white,
           ),
         ),
-        subtitle: Text("listId: ${taskStatusString(item.listId)}"),
+        subtitle: Text("listId: ${taskStatusString(item.taskDescription)}"),
         trailing: const Icon(
           Icons.sort,
           color: Colors.white,
@@ -403,14 +412,6 @@ class ItemWidget extends StatelessWidget {
       ),
     );
   }
-}
-
-class Item {
-  final String? id;
-  String? listId;
-  final String? title;
-
-  Item({this.id, this.listId, this.title});
 }
 
 class FloatingWidget extends StatelessWidget {
