@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:time_tracking_app/consts/enums.dart';
 import 'package:time_tracking_app/consts/lang.dart';
 import 'package:time_tracking_app/consts/strings_of_enums.dart';
+import 'package:time_tracking_app/core/models/task_datamodel.dart';
 import 'package:time_tracking_app/core/viewmodels/home_viewmodel.dart';
 import 'package:time_tracking_app/utils/percentage_size_ext.dart';
 import 'package:time_tracking_app/views/base_views/base_views.dart';
@@ -37,8 +38,14 @@ class _HomeViewState extends State<HomeView> {
       ],
       TaskStatus.inProgress.toString(): [
         Item(id: "3", listId: TaskStatus.inProgress.toString(), title: "Auto"),
-        Item(id: "4", listId: TaskStatus.inProgress.toString(), title: "Bicicleta"),
-        Item(id: "5", listId: TaskStatus.inProgress.toString(), title: "Bla bla"),
+        Item(
+            id: "4",
+            listId: TaskStatus.inProgress.toString(),
+            title: "Bicicleta"),
+        Item(
+            id: "5",
+            listId: TaskStatus.inProgress.toString(),
+            title: "Bla bla"),
       ],
       TaskStatus.done.toString(): [
         Item(id: "6", listId: TaskStatus.done.toString(), title: "Chile"),
@@ -54,7 +61,8 @@ class _HomeViewState extends State<HomeView> {
     return DragTarget<Item>(
       // Will accept others, but not himself
       onWillAccept: (Item? data) {
-        return board![listId]!.isEmpty || data!.id != board![listId]![targetPosition].id;
+        return board![listId]!.isEmpty ||
+            data!.id != board![listId]![targetPosition].id;
       },
       // Moves the card into the position
       onAccept: (Item data) {
@@ -68,7 +76,8 @@ class _HomeViewState extends State<HomeView> {
           }
         });
       },
-      builder: (BuildContext context, List<Item?> data, List<dynamic> rejectedData) {
+      builder:
+          (BuildContext context, List<Item?> data, List<dynamic> rejectedData) {
         if (data.isEmpty) {
           // The area that accepts the draggable
           return Container(
@@ -94,7 +103,10 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  buildHeader({required String listId, required HomeViewModel read, required HomeViewModel watch}) {
+  buildHeader(
+      {required String listId,
+      required HomeViewModel read,
+      required HomeViewModel watch}) {
     Widget header = SizedBox(
       height: widget.headerHeight,
       child: HeaderWidget(
@@ -132,8 +144,9 @@ class _HomeViewState extends State<HomeView> {
           // Moves the card into the position
           onAccept: (String incomingListId) {
             setState(
-                  () {
-                LinkedHashMap<String, List<Item>> reorderedBoard = LinkedHashMap();
+              () {
+                LinkedHashMap<String, List<Item>> reorderedBoard =
+                    LinkedHashMap();
                 for (String key in board!.keys) {
                   if (key == incomingListId) {
                     reorderedBoard[listId] = board![listId]!;
@@ -148,7 +161,8 @@ class _HomeViewState extends State<HomeView> {
             );
           },
 
-          builder: (BuildContext context, List<String?> data, List<dynamic> rejectedData) {
+          builder: (BuildContext context, List<String?> data,
+              List<dynamic> rejectedData) {
             if (data.isEmpty) {
               // The area that accepts the draggable
               return SizedBox(
@@ -185,41 +199,59 @@ class _HomeViewState extends State<HomeView> {
           child: Column(
             children: [
               buildHeader(listId: listId, read: read, watch: watch),
-              ListView.builder(
-                scrollDirection: Axis.vertical,
-                shrinkWrap: true,
-                itemCount: items.length,
-                itemBuilder: (BuildContext context, int index) {
-                  // A stack that provides:
-                  // * A draggable object
-                  // * An area for incoming draggables
-                  return Stack(
-                    children: [
-                      Draggable<Item>(
-                        data: items[index], // A card waiting to be dragged
-                        childWhenDragging: Opacity(
-                          // The card that's left behind
-                          opacity: 0.2,
-                          child: ItemWidget(item: items[index]),
-                        ),
-                        feedback: SizedBox(
-                          // A card floating around
-                          height: widget.tileHeight,
-                          width: widget.tileWidth,
-                          child: FloatingWidget(
+              StreamBuilder(
+                  stream: read.getAllTasks().onValue,
+                  builder: (context, snapshot) {
+                    List<TaskDataModel> tasksList = [];
+                    if (snapshot.hasError) {
+                      return Text("Errorz");
+                    }
+                    if (snapshot.connectionState == ConnectionState.active) {
+                      final data = Map<String, dynamic>.from(
+                          snapshot.data!.snapshot.value as Map);
+
+                      data.forEach((key, value) {
+                        final result = Map<String, dynamic>.from(value);
+                        TaskDataModel model = TaskDataModel.fromJson(result);
+                        tasksList.add(model);
+                      });
+                    }
+                    return ListView.builder(
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      itemCount: items.length,
+                      itemBuilder: (BuildContext context, int index) {
+
+                        return Stack(
+                          children: [
+                            Draggable<Item>(
+                              data: items[index],
+                              // A card waiting to be dragged
+                              childWhenDragging: Opacity(
+                                // The card that's left behind
+                                opacity: 0.2,
+                                child: ItemWidget(item: items[index]),
+                              ),
+                              feedback: SizedBox(
+                                // A card floating around
+                                height: widget.tileHeight,
+                                width: widget.tileWidth,
+                                child: FloatingWidget(
+                                    child: ItemWidget(
+                                  item: items[index],
+                                )),
+                              ),
                               child: ItemWidget(
                                 item: items[index],
-                              )),
-                        ),
-                        child: ItemWidget(
-                          item: items[index],
-                        ),
-                      ),
-                      buildItemDragTarget(listId, index, widget.tileHeight),
-                    ],
-                  );
-                },
-              ),
+                              ),
+                            ),
+                            buildItemDragTarget(
+                                listId, index, widget.tileHeight),
+                          ],
+                        );
+                      },
+                    );
+                  })
             ],
           ),
         ),
@@ -246,7 +278,8 @@ class HeaderWidget extends StatelessWidget {
   final HomeViewModel? read;
   final HomeViewModel? watch;
 
-  const HeaderWidget({Key? key, this.title, this.read, this.watch}) : super(key: key);
+  const HeaderWidget({Key? key, this.title, this.read, this.watch})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -270,15 +303,18 @@ class HeaderWidget extends StatelessWidget {
             size: 30.0,
           ),
           // onTap: () => _addTask(context: context, title: title!, read: read!, watch: watch!),
-          onTap: () => read?.getAllTasks()
-      ),
+          onTap: () => read?.getAllTasks()),
     );
   }
 }
 
 //add task
 
-void _addTask({required BuildContext context, required String title, required HomeViewModel read, required HomeViewModel watch}) {
+void _addTask(
+    {required BuildContext context,
+    required String title,
+    required HomeViewModel read,
+    required HomeViewModel watch}) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -308,20 +344,20 @@ void _addTask({required BuildContext context, required String title, required Ho
           watch.viewState == ViewState.busy
               ? const CircularProgressIndicator()
               : TextButton(
-              child: const Text(Lang.save),
-              onPressed: () async {
-                if (read.addTaskController.text.isNotEmpty) {
-                  final result = await read.addTask(title);
-                  if (result.isSuccess) {
-                    if (context.mounted) Navigator.pop(context);
-                    showToast(msg: Lang.taskAddedSuccessfully);
-                  } else {
-                    showToast(msg: Lang.pleaseTryAgainLater);
-                  }
-                } else {
-                  showToast(msg: Lang.allFieldsAreRequired);
-                }
-              })
+                  child: const Text(Lang.save),
+                  onPressed: () async {
+                    if (read.addTaskController.text.isNotEmpty) {
+                      final result = await read.addTask(title);
+                      if (result.isSuccess) {
+                        if (context.mounted) Navigator.pop(context);
+                        showToast(msg: Lang.taskAddedSuccessfully);
+                      } else {
+                        showToast(msg: Lang.pleaseTryAgainLater);
+                      }
+                    } else {
+                      showToast(msg: Lang.allFieldsAreRequired);
+                    }
+                  })
         ],
       );
     },
@@ -334,8 +370,7 @@ class ItemWidget extends StatelessWidget {
 
   const ItemWidget({Key? key, this.item}) : super(key: key);
 
-  ListTile makeListTile(Item item) =>
-      ListTile(
+  ListTile makeListTile(Item item) => ListTile(
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 20.0,
           vertical: 10.0,

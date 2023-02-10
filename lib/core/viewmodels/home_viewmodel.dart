@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:result_type/result_type.dart';
 import 'package:time_tracking_app/consts/enums.dart';
@@ -27,9 +28,8 @@ class HomeViewModel extends BaseViewModel {
     return res;
   }
 
-  Future getAllTasks() async {
-    final result = await _homeService.getAllTasks(userID: currentUser!.uid);
-
-    print(result);
+  DatabaseReference getAllTasks() {
+    final result = _homeService.getAllTasks(userID: currentUser!.uid);
+    return result.success;
   }
 }

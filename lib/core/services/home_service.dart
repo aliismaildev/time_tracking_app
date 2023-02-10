@@ -27,24 +27,12 @@ class HomeService {
     }
   }
 
-  Future<Result?> getAllTasks({
+  Result getAllTasks({
     required String userID,
-  }) async {
-    List<TaskDataModel> list = [];
+  }) {
     try {
-      final ref = fireBaseDB.ref("tasks/$userID").onValue.listen((event) {
-        final data = Map<String, dynamic>.from(
-          event.snapshot.value as Map,
-        );
-
-        data.forEach((key, value) {
-          final result = Map<String, dynamic>.from(value);
-          TaskDataModel model = TaskDataModel.fromJson(result);
-          list.add(model);
-        });
-      });
-
-      return Success(list);
+      final ref = fireBaseDB.ref("tasks/$userID");
+      return Success(ref);
     } on FirebaseException catch (e) {
       debugPrint(e.toString());
       return Failure(e.message.toString());
