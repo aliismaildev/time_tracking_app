@@ -45,21 +45,21 @@ class _HomeViewState extends State<HomeView> {
       TaskStatus.inProgress.toString(): [
         TaskDataModel(
             taskId: '51262',
-            taskStatus:   TaskStatus.inProgress.toString(),
+            taskStatus: TaskStatus.inProgress.toString(),
             taskDescription: "Task 3"),
         TaskDataModel(
             taskId: '51262',
-            taskStatus:   TaskStatus.inProgress.toString(),
+            taskStatus: TaskStatus.inProgress.toString(),
             taskDescription: "Task 4"),
       ],
       TaskStatus.done.toString(): [
         TaskDataModel(
             taskId: '51262',
-            taskStatus:   TaskStatus.done.toString(),
+            taskStatus: TaskStatus.done.toString(),
             taskDescription: "Task 5"),
         TaskDataModel(
             taskId: '51262',
-            taskStatus:   TaskStatus.done.toString(),
+            taskStatus: TaskStatus.done.toString(),
             taskDescription: "Task 6"),
       ]
     });
@@ -86,8 +86,8 @@ class _HomeViewState extends State<HomeView> {
           }
         });
       },
-      builder:
-          (BuildContext context, List<TaskDataModel?> data, List<dynamic> rejectedData) {
+      builder: (BuildContext context, List<TaskDataModel?> data,
+          List<dynamic> rejectedData) {
         if (data.isEmpty) {
           // The area that accepts the draggable
           return Container(
@@ -293,8 +293,8 @@ class HeaderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.teal,
-      child: ListTile(
+        color: Colors.teal,
+        child: ListTile(
           dense: true,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 20.0,
@@ -311,9 +311,9 @@ class HeaderWidget extends StatelessWidget {
             color: Colors.white,
             size: 30.0,
           ),
-          // onTap: () => _addTask(context: context, title: title!, read: read!, watch: watch!),
-          onTap: () => read?.getAllTasks()),
-    );
+          onTap: () => _addTask(
+              context: context, title: title!, read: read!, watch: watch!),
+        ));
   }
 }
 
