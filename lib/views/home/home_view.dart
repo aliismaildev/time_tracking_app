@@ -27,42 +27,14 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   LinkedHashMap<String, List<TaskDataModel>>? board;
+  List<TaskDataModel> toDoTasks = [];
+  List<TaskDataModel> inProgressTasks = [];
+  List<TaskDataModel> doneTasks = [];
 
   @override
   void initState() {
     board = LinkedHashMap();
-    board!.addAll({
-      TaskStatus.toDo.toString(): [
-        TaskDataModel(
-            taskId: '51262',
-            taskStatus: TaskStatus.toDo.toString(),
-            taskDescription: "Task 1"),
-        TaskDataModel(
-            taskId: '51262',
-            taskStatus: TaskStatus.toDo.toString(),
-            taskDescription: "Task 2"),
-      ],
-      TaskStatus.inProgress.toString(): [
-        TaskDataModel(
-            taskId: '51262',
-            taskStatus: TaskStatus.inProgress.toString(),
-            taskDescription: "Task 3"),
-        TaskDataModel(
-            taskId: '51262',
-            taskStatus: TaskStatus.inProgress.toString(),
-            taskDescription: "Task 4"),
-      ],
-      TaskStatus.done.toString(): [
-        TaskDataModel(
-            taskId: '51262',
-            taskStatus: TaskStatus.done.toString(),
-            taskDescription: "Task 5"),
-        TaskDataModel(
-            taskId: '51262',
-            taskStatus: TaskStatus.done.toString(),
-            taskDescription: "Task 6"),
-      ]
-    });
+    board!.addAll({TaskStatus.toDo.toString(): toDoTasks, TaskStatus.inProgress.toString(): inProgressTasks, TaskStatus.done.toString(): doneTasks});
 
     super.initState();
   }
@@ -71,8 +43,7 @@ class _HomeViewState extends State<HomeView> {
     return DragTarget<TaskDataModel>(
       // Will accept others, but not himself
       onWillAccept: (TaskDataModel? data) {
-        return board![listId]!.isEmpty ||
-            data!.taskId != board![listId]![targetPosition].taskId;
+        return board![listId]!.isEmpty || data!.taskId != board![listId]![targetPosition].taskId;
       },
       // Moves the card into the position
       onAccept: (TaskDataModel data) {
@@ -86,8 +57,7 @@ class _HomeViewState extends State<HomeView> {
           }
         });
       },
-      builder: (BuildContext context, List<TaskDataModel?> data,
-          List<dynamic> rejectedData) {
+      builder: (BuildContext context, List<TaskDataModel?> data, List<dynamic> rejectedData) {
         if (data.isEmpty) {
           // The area that accepts the draggable
           return Container(
@@ -113,10 +83,7 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  buildHeader(
-      {required String listId,
-      required HomeViewModel read,
-      required HomeViewModel watch}) {
+  buildHeader({required String listId, required HomeViewModel read, required HomeViewModel watch}) {
     Widget header = SizedBox(
       height: widget.headerHeight,
       child: HeaderWidget(
@@ -155,8 +122,7 @@ class _HomeViewState extends State<HomeView> {
           onAccept: (String incomingListId) {
             setState(
               () {
-                LinkedHashMap<String, List<TaskDataModel>> reorderedBoard =
-                    LinkedHashMap();
+                LinkedHashMap<String, List<TaskDataModel>> reorderedBoard = LinkedHashMap();
                 for (String key in board!.keys) {
                   if (key == incomingListId) {
                     reorderedBoard[listId] = board![listId]!;
@@ -171,8 +137,7 @@ class _HomeViewState extends State<HomeView> {
             );
           },
 
-          builder: (BuildContext context, List<String?> data,
-              List<dynamic> rejectedData) {
+          builder: (BuildContext context, List<String?> data, List<dynamic> rejectedData) {
             if (data.isEmpty) {
               // The area that accepts the draggable
               return SizedBox(
@@ -209,58 +174,39 @@ class _HomeViewState extends State<HomeView> {
           child: Column(
             children: [
               buildHeader(listId: listId, read: read, watch: watch),
-              StreamBuilder(
-                  stream: read.getAllTasks().onValue,
-                  builder: (context, snapshot) {
-                    List<TaskDataModel> tasksList = [];
-                    if (snapshot.hasError) {
-                      return Text("Errorz");
-                    }
-                    if (snapshot.connectionState == ConnectionState.active) {
-                      final data = Map<String, dynamic>.from(
-                          snapshot.data!.snapshot.value as Map);
-
-                      data.forEach((key, value) {
-                        final result = Map<String, dynamic>.from(value);
-                        TaskDataModel model = TaskDataModel.fromJson(result);
-                        tasksList.add(model);
-                      });
-                    }
-                    return ListView.builder(
-                      scrollDirection: Axis.vertical,
-                      shrinkWrap: true,
-                      itemCount: items.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Stack(
-                          children: [
-                            Draggable<TaskDataModel>(
-                              data: items[index],
-                              // A card waiting to be dragged
-                              childWhenDragging: Opacity(
-                                // The card that's left behind
-                                opacity: 0.2,
-                                child: ItemWidget(item: items[index]),
-                              ),
-                              feedback: SizedBox(
-                                // A card floating around
-                                height: widget.tileHeight,
-                                width: widget.tileWidth,
-                                child: FloatingWidget(
-                                    child: ItemWidget(
-                                  item: items[index],
-                                )),
-                              ),
+              ListView.builder(
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
+                itemCount: items.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Stack(
+                    children: [
+                      Draggable<TaskDataModel>(
+                        data: items[index],
+                        // A card waiting to be dragged
+                        childWhenDragging: Opacity(
+                          // The card that's left behind
+                          opacity: 0.2,
+                          child: ItemWidget(item: items[index]),
+                        ),
+                        feedback: SizedBox(
+                          // A card floating around
+                          height: widget.tileHeight,
+                          width: widget.tileWidth,
+                          child: FloatingWidget(
                               child: ItemWidget(
-                                item: items[index],
-                              ),
-                            ),
-                            buildItemDragTarget(
-                                listId, index, widget.tileHeight),
-                          ],
-                        );
-                      },
-                    );
-                  })
+                            item: items[index],
+                          )),
+                        ),
+                        child: ItemWidget(
+                          item: items[index],
+                        ),
+                      ),
+                      buildItemDragTarget(listId, index, widget.tileHeight),
+                    ],
+                  );
+                },
+              )
             ],
           ),
         ),
@@ -275,7 +221,36 @@ class _HomeViewState extends State<HomeView> {
             children: board!.keys.map((String key) {
               return SizedBox(
                 width: widget.tileWidth,
-                child: buildHomeViewList(key, board![key]!),
+                child: StreamBuilder(
+                    stream: read.getAllTasks().onValue,
+                    builder: (context, snapshot) {
+                      List<TaskDataModel> tasksList = [];
+                      if (snapshot.hasError) {
+                        return Text("Errorz");
+                      }
+                      if (snapshot.connectionState == ConnectionState.active) {
+                        if (snapshot.data?.snapshot.value != null) {
+                          final data = Map<String, dynamic>.from(snapshot.data!.snapshot.value as Map);
+                          data.forEach((key, value) {
+                            final result = Map<String, dynamic>.from(value);
+                            TaskDataModel model = TaskDataModel.fromJson(result);
+                            tasksList.add(model);
+                            if (tasksList.isNotEmpty) {
+                              for (TaskDataModel task in tasksList) {
+                                if (task.taskStatus == TaskStatus.toDo.toString()) {
+                                  toDoTasks.add(task);
+                                } else if (task.taskStatus == TaskStatus.inProgress.toString()) {
+                                  inProgressTasks.add(task);
+                                } else {
+                                  doneTasks.add(task);
+                                }
+                              }
+                            }
+                          });
+                        }
+                      }
+                      return buildHomeViewList(key, board![key]!);
+                    }),
               );
             }).toList()));
   }
@@ -287,8 +262,7 @@ class HeaderWidget extends StatelessWidget {
   final HomeViewModel? read;
   final HomeViewModel? watch;
 
-  const HeaderWidget({Key? key, this.title, this.read, this.watch})
-      : super(key: key);
+  const HeaderWidget({Key? key, this.title, this.read, this.watch}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -311,19 +285,14 @@ class HeaderWidget extends StatelessWidget {
             color: Colors.white,
             size: 30.0,
           ),
-          onTap: () => _addTask(
-              context: context, title: title!, read: read!, watch: watch!),
+          onTap: () => _addTask(context: context, title: title!, read: read!, watch: watch!),
         ));
   }
 }
 
 //add task
 
-void _addTask(
-    {required BuildContext context,
-    required String title,
-    required HomeViewModel read,
-    required HomeViewModel watch}) {
+void _addTask({required BuildContext context, required String title, required HomeViewModel read, required HomeViewModel watch}) {
   showDialog(
     context: context,
     builder: (BuildContext context) {

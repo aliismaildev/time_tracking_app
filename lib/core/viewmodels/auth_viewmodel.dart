@@ -26,7 +26,7 @@ class AuthViewModel extends BaseViewModel {
   Future<Result> register() async {
     Result? result;
     viewState = ViewState.busy;
-    result = await _authService.register(email: emailController.text, password: passwordController.text);
+    result = await _authService.register(email: emailController.text.trim(), password: passwordController.text.trim());
     if (result.isSuccess) {
       result = await _createBaseProfile(); //create profile in DB
     }
@@ -37,6 +37,10 @@ class AuthViewModel extends BaseViewModel {
   Future<Result<UserCredential, Object>> login() async {
     viewState = ViewState.busy;
     final res = await _authService.login(email: emailController.text, password: passwordController.text);
+    if (res.isSuccess) {
+      emailController.clear();
+      passwordController.clear();
+    }
     viewState = ViewState.idle;
     return res;
   }
@@ -47,7 +51,7 @@ class AuthViewModel extends BaseViewModel {
     _profileDataModel.uid = currentUser?.uid;
     _profileDataModel.firstName = firstNameController.text;
     _profileDataModel.lastName = lastNameController.text;
-    _profileDataModel.email = currentUser?.email;
+    _profileDataModel.email = currentUser?.email?.trim();
     _profileDataModel.age = int.parse(ageController.text);
 
     Result res = await _profileService.setProfile(
