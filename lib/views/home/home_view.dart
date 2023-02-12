@@ -30,6 +30,7 @@ class _HomeViewState extends State<HomeView> {
   List<TaskDataModel> toDoTasks = [];
   List<TaskDataModel> inProgressTasks = [];
   List<TaskDataModel> doneTasks = [];
+  List<TaskDataModel> tasksList = [];
 
   @override
   void initState() {
@@ -224,9 +225,8 @@ class _HomeViewState extends State<HomeView> {
                 child: StreamBuilder(
                     stream: read.getAllTasks().onValue,
                     builder: (context, snapshot) {
-                      List<TaskDataModel> tasksList = [];
                       if (snapshot.hasError) {
-                        return Text("Errorz");
+                        return const Text("Error");
                       }
                       if (snapshot.connectionState == ConnectionState.active) {
                         if (snapshot.data?.snapshot.value != null) {
@@ -234,19 +234,22 @@ class _HomeViewState extends State<HomeView> {
                           data.forEach((key, value) {
                             final result = Map<String, dynamic>.from(value);
                             TaskDataModel model = TaskDataModel.fromJson(result);
-                            tasksList.add(model);
-                            if (tasksList.isNotEmpty) {
-                              for (TaskDataModel task in tasksList) {
-                                if (task.taskStatus == TaskStatus.toDo.toString()) {
-                                  toDoTasks.add(task);
-                                } else if (task.taskStatus == TaskStatus.inProgress.toString()) {
-                                  inProgressTasks.add(task);
-                                } else {
-                                  doneTasks.add(task);
-                                }
-                              }
+                            if (tasksList.where((element) => element.taskId == model.taskId).isEmpty) {
+                              tasksList.add(model);
                             }
                           });
+                          print(tasksList);
+                          if (tasksList.isNotEmpty) {
+                            for (TaskDataModel task in tasksList) {
+                              if (task.taskStatus == TaskStatus.toDo.toString()) {
+                                toDoTasks.add(task);
+                              } else if (task.taskStatus == TaskStatus.inProgress.toString()) {
+                                inProgressTasks.add(task);
+                              } else {
+                                doneTasks.add(task);
+                              }
+                            }
+                          }
                         }
                       }
                       return buildHomeViewList(key, board![key]!);
